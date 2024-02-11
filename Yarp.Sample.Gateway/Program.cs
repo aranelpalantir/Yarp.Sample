@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using Yarp.ReverseProxy.Health;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddReverseProxy()
@@ -14,6 +15,12 @@ builder.Services.AddRateLimiter(options =>
         opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         opt.QueueLimit = 2;
     });
+});
+builder.Services.Configure<TransportFailureRateHealthPolicyOptions>(o =>
+{
+    o.DetectionWindowSize = TimeSpan.FromSeconds(30);
+    o.MinimalTotalCountThreshold = 5;
+    o.DefaultFailureRateLimit = 0.5;
 });
 
 var app = builder.Build();
