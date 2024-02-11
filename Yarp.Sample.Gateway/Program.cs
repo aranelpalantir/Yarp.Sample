@@ -6,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
+builder.Services.AddRequestTimeouts();
+
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("customerRateLimiterPolicy", opt =>
@@ -24,6 +26,7 @@ builder.Services.Configure<TransportFailureRateHealthPolicyOptions>(o =>
 });
 
 var app = builder.Build();
+app.UseRequestTimeouts();
 app.UseRateLimiter();
 app.MapReverseProxy();
 app.Run();
